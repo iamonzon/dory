@@ -4,26 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.navigation.compose.rememberNavController
+import com.iamonzon.dory.navigation.Dashboard
+import com.iamonzon.dory.navigation.DoryNavGraph
+import com.iamonzon.dory.navigation.ItemCreation
+import com.iamonzon.dory.navigation.Onboarding
+import com.iamonzon.dory.navigation.Profile
+import com.iamonzon.dory.navigation.ReviewSession
+import com.iamonzon.dory.ui.actionhub.ActionHubDialog
 import com.iamonzon.dory.ui.theme.DoryTheme
+
+// Toggle to true to test onboarding flow
+private const val IS_FIRST_LAUNCH = false
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,58 +43,64 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
+enum class TopLevelTab(
+    val label: String,
+    val icon: ImageVector
+) {
+    DASHBOARD("Dashboard", Icons.Default.Home),
+    ACTION_HUB("Action Hub", Icons.Default.AddCircle),
+    PROFILE("Profile", Icons.Default.AccountCircle)
+}
+
 @Composable
 fun DoryApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    val navController = rememberNavController()
+    var currentTab by rememberSaveable { mutableStateOf(TopLevelTab.DASHBOARD) }
+    var showActionHub by remember { mutableStateOf(false) }
+
+    val startDestination: Any = if (IS_FIRST_LAUNCH) Onboarding else Dashboard
+
+    if (showActionHub) {
+        ActionHubDialog(
+            onDismiss = { showActionHub = false },
+            onAddNewItem = { navController.navigate(ItemCreation) },
+            onStartReviewSession = { navController.navigate(ReviewSession) }
+        )
+    }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            TopLevelTab.entries.forEach { tab ->
                 item(
                     icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
-                        )
+                        Icon(tab.icon, contentDescription = tab.label)
                     },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
+                    label = { Text(tab.label) },
+                    selected = tab == currentTab,
+                    onClick = {
+                        when (tab) {
+                            TopLevelTab.ACTION_HUB -> showActionHub = true
+                            TopLevelTab.DASHBOARD -> {
+                                currentTab = tab
+                                navController.navigate(Dashboard) {
+                                    popUpTo(Dashboard) { inclusive = true }
+                                }
+                            }
+                            TopLevelTab.PROFILE -> {
+                                currentTab = tab
+                                navController.navigate(Profile) {
+                                    popUpTo(Dashboard)
+                                }
+                            }
+                        }
+                    }
                 )
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
-    }
-}
-
-enum class AppDestinations(
-    val label: String,
-    val icon: ImageVector,
-) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DoryTheme {
-        Greeting("Android")
+        DoryNavGraph(
+            navController = navController,
+            startDestination = startDestination
+        )
     }
 }

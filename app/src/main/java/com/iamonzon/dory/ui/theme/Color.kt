@@ -9,3 +9,13 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// Urgency colors — Light theme
+val UrgencyRedLight = Color(0xFFBA1A1A)
+val UrgencyYellowLight = Color(0xFF7D5700)
+val UrgencyGreenLight = Color(0xFF006D3B)
+
+// Urgency colors — Dark theme
+val UrgencyRedDark = Color(0xFFFFB4AB)
+val UrgencyYellowDark = Color(0xFFFABD00)
+val UrgencyGreenDark = Color(0xFF6BDDAB)
