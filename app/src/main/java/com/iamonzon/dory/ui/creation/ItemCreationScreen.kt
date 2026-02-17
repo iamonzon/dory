@@ -38,7 +38,6 @@ import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 
-private enum class CreationStep { TITLE, SOURCE, CATEGORY, NOTES }
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
