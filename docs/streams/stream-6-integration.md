@@ -9,13 +9,24 @@ Wire the ViewModels (created in Streams 1-3) into the screen composables, update
 ## Prerequisite
 **This stream runs AFTER Streams 1-5 are all merged to `main`.** It is the only stream that modifies shared files.
 
+## Current State (Post-Merge)
+
+All streams 1-5 are merged. The codebase has:
+- **All 8 ViewModels** created and compiling (`Dashboard`, `Creation`, `Review`, `ReviewSession`, `Profile`, `CategoryManagement`, `ArchivedItems`, `AdvancedSettings`)
+- **No `ItemEditViewModel`** — this was not part of any stream and must be created in Stream 6
+- **All screens** still read from `MockData` — no screen is wired to its ViewModel yet
+- **`DoryApplication.onCreate()`** initializes `AppContainer` only — does NOT call `NotificationChannels.createChannels()` or schedule the daily digest
+- **`MainActivity`** uses `IS_FIRST_LAUNCH = false` (hardcoded constant) instead of reading from `SettingsRepository`
+- **`lifecycle-runtime-compose`** dependency is NOT in `build.gradle.kts` — needed for `collectAsStateWithLifecycle()`
+
 ## Files to Modify
 
 ```
-app/src/main/java/com/iamonzon/dory/AppContainer.kt
-app/src/main/java/com/iamonzon/dory/DoryApplication.kt
-app/src/main/java/com/iamonzon/dory/MainActivity.kt
-app/src/main/java/com/iamonzon/dory/navigation/DoryNavGraph.kt
+app/build.gradle.kts                                          (add lifecycle-runtime-compose)
+app/src/main/java/com/iamonzon/dory/AppContainer.kt            (add ViewModel factories)
+app/src/main/java/com/iamonzon/dory/DoryApplication.kt         (notification channel + scheduler init)
+app/src/main/java/com/iamonzon/dory/MainActivity.kt            (onboarding flag from SettingsRepository)
+app/src/main/java/com/iamonzon/dory/navigation/DoryNavGraph.kt (instantiate ViewModels, pass to screens)
 app/src/main/java/com/iamonzon/dory/ui/dashboard/DashboardScreen.kt
 app/src/main/java/com/iamonzon/dory/ui/dashboard/ItemEditScreen.kt
 app/src/main/java/com/iamonzon/dory/ui/creation/ItemCreationScreen.kt
@@ -28,7 +39,13 @@ app/src/main/java/com/iamonzon/dory/ui/profile/AdvancedSettingsScreen.kt
 app/src/main/java/com/iamonzon/dory/ui/onboarding/OnboardingScreen.kt
 ```
 
-## Files That Can Be Deleted After Integration
+## Files to Create
+
+```
+app/src/main/java/com/iamonzon/dory/ui/dashboard/ItemEditViewModel.kt
+```
+
+## Files to Delete After Integration
 
 ```
 app/src/main/java/com/iamonzon/dory/data/mock/MockData.kt
@@ -38,7 +55,42 @@ Remove MockData once all screens are wired to real ViewModels.
 
 ## Task Breakdown
 
-### 1. Update AppContainer
+### 1. Add lifecycle-runtime-compose Dependency
+
+`collectAsStateWithLifecycle()` requires this dependency. Add to `app/build.gradle.kts`:
+
+```kotlin
+implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+```
+
+Or add to the version catalog in `gradle/libs.versions.toml` and reference it.
+
+### 2. Create ItemEditViewModel
+
+This ViewModel was not created in any previous stream. Create `ItemEditViewModel.kt`:
+
+```kotlin
+class ItemEditViewModel(
+    private val itemId: Long,
+    private val itemRepository: ItemRepository,
+    private val reviewRepository: ReviewRepository
+) : ViewModel() {
+
+    val item: StateFlow<Item?> = ...       // load item by ID
+    val recentReviews: StateFlow<List<Review>> = ...  // last 3 reviews
+
+    fun updateTitle(title: String) { ... }
+    fun updateSource(source: String) { ... }
+    fun updateNotes(notes: String) { ... }
+    fun saveChanges() { ... }
+
+    companion object {
+        fun factory(itemId: Long, itemRepository: ItemRepository, reviewRepository: ReviewRepository): ViewModelProvider.Factory = ...
+    }
+}
+```
+
+### 3. Update AppContainer
 
 Add ViewModel dependencies to `AppContainer.kt`:
 
@@ -63,12 +115,15 @@ class AppContainer(context: Context) {
     val archivedItemsViewModelFactory get() = ArchivedItemsViewModel.factory(itemRepository)
 
     val advancedSettingsViewModelFactory get() = AdvancedSettingsViewModel.factory(settingsRepository)
+
+    val itemEditViewModelFactory: (Long) -> ViewModelProvider.Factory
+        get() = { itemId -> ItemEditViewModel.factory(itemId, itemRepository, reviewRepository) }
 }
 ```
 
-### 2. Update DoryApplication
+### 4. Update DoryApplication
 
-Add notification channel creation:
+Add notification channel creation and scheduler initialization:
 
 ```kotlin
 class DoryApplication : Application() {
@@ -78,13 +133,31 @@ class DoryApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         NotificationChannels.createChannels(this)
+
         // Schedule daily digest with saved notification time
-        // (launch coroutine to read from SettingsRepository)
+        CoroutineScope(Dispatchers.IO).launch {
+            val time = container.settingsRepository.getNotificationTime()
+            DailyDigestScheduler.schedule(this@DoryApplication, time.hour, time.minute)
+        }
     }
 }
 ```
 
-### 3. Update DoryNavGraph
+### 5. Update MainActivity — Onboarding Flag
+
+Replace `IS_FIRST_LAUNCH = false` with a real check:
+
+```kotlin
+// In MainActivity, read from SettingsRepository:
+val app = application as DoryApplication
+val hasCompleted by app.container.settingsRepository
+    .observeHasCompletedOnboarding()
+    .collectAsStateWithLifecycle(initialValue = true)  // default true to avoid flash
+
+val startDestination: Any = if (hasCompleted) Dashboard else Onboarding
+```
+
+### 6. Update DoryNavGraph
 
 For each composable in the nav graph, obtain the ViewModel from the `AppContainer`:
 
@@ -100,11 +173,9 @@ composable<Dashboard> {
 }
 ```
 
-Or alternatively, obtain ViewModels inside each screen composable. Choose whichever pattern is simpler — but be consistent.
-
 **Recommended pattern:** Pass ViewModel as parameter to each screen. This makes screens testable (you can pass fake ViewModels in previews).
 
-### 4. Wire Each Screen
+### 7. Wire Each Screen
 
 For each screen, the changes follow this pattern:
 
@@ -152,55 +223,41 @@ For each screen, the changes follow this pattern:
 - Wire slider to `viewModel.setDesiredRetention(value)`
 
 **ItemEditScreen:**
-- This screen needs an `ItemEditViewModel` — **or** it can reuse `ReviewViewModel` with item editing capabilities. Since no other stream created an `ItemEditViewModel`:
-  - Create `ItemEditViewModel.kt` in this stream
-  - It needs: load item by ID, load last 3 reviews, save item updates
-  - Constructor: `ItemEditViewModel(itemId: Long, itemRepository: ItemRepository, reviewRepository: ReviewRepository)`
-  - StateFlows: `item: StateFlow<Item?>`, `recentReviews: StateFlow<List<Review>>`
-  - Methods: `updateTitle(String)`, `updateSource(String)`, `updateNotes(String)`, `saveChanges()`
+- Wire to new `ItemEditViewModel`
+- Replace `MockData.itemById(itemId)` with `viewModel.item.collectAsStateWithLifecycle()`
+- Replace mock reviews with `viewModel.recentReviews.collectAsStateWithLifecycle()`
+- Wire save button to `viewModel.saveChanges()`
 
-### 5. Onboarding Flow
+### 8. Onboarding Flow
 
-- In `MainActivity.kt`, check `settingsRepository.observeHasCompletedOnboarding()` to decide the start destination:
-  ```kotlin
-  val startDestination = if (hasCompletedOnboarding) Dashboard else Onboarding
-  ```
-- In the `Onboarding` composable in `DoryNavGraph`, call `settingsRepository.setHasCompletedOnboarding(true)` when onComplete is triggered
+- In `OnboardingScreen`, when `onComplete` is triggered, call `settingsRepository.setHasCompletedOnboarding(true)`
+- Pass `settingsRepository` (or a lambda) through `DoryNavGraph`
 
-### 6. Notification Scheduling Integration
+### 9. Notification Scheduling Integration
 
-- In `DoryApplication.onCreate()`, launch a coroutine to read the saved notification time and call `DailyDigestScheduler.schedule(this, hour, minute)`
 - In `ProfileViewModel.setNotificationTime()`, also call `DailyDigestScheduler.schedule(context, hour, minute)` — this requires the ViewModel to have access to the application context. Pass it via factory.
 
-### 7. Delete MockData
+### 10. Delete MockData
 
 Once all screens are wired:
 - Delete `app/src/main/java/com/iamonzon/dory/data/mock/MockData.kt`
 - Remove any remaining imports of `MockData` from composables
-
-### 8. Add lifecycle dependency if needed
-
-The `collectAsStateWithLifecycle()` extension requires:
-```kotlin
-implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
-```
-Check if already present. If not, add it to `app/build.gradle.kts`.
 
 ## Testing
 
 ### Manual Test Checklist
 - [ ] App launches to onboarding on first install
 - [ ] After onboarding, subsequent launches go to dashboard
-- [ ] Create an item via Action Hub → Add → fill steps → Save
+- [ ] Create an item via Action Hub > Add > fill steps > Save
 - [ ] Item appears on dashboard with correct urgency (Overdue since never reviewed)
-- [ ] Tap item → Review screen shows item details, empty review history
-- [ ] Submit review with "Good" → toast, navigate back
+- [ ] Tap item > Review screen shows item details, empty review history
+- [ ] Submit review with "Good" > toast, navigate back
 - [ ] Item urgency updates on dashboard (may change from Overdue to NotDue)
-- [ ] Long-press item → context menu → Archive → item disappears, toast
-- [ ] Profile → Archived Items → see archived item → Restore → returns to dashboard
-- [ ] Profile → Categories → create, rename, delete category
-- [ ] Profile → Advanced Settings → adjust retention slider → persists across restarts
-- [ ] Review Session → shows only due/overdue items
+- [ ] Long-press item > context menu > Archive > item disappears, toast
+- [ ] Profile > Archived Items > see archived item > Restore > returns to dashboard
+- [ ] Profile > Categories > create, rename, delete category
+- [ ] Profile > Advanced Settings > adjust retention slider > persists across restarts
+- [ ] Review Session > shows only due/overdue items
 - [ ] Data persists across app restarts
 - [ ] Notification appears at configured time (advance device clock to test)
 
