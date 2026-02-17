@@ -7,7 +7,6 @@ import com.iamonzon.dory.data.model.Category
 import com.iamonzon.dory.data.repository.CategoryDeleteStrategy
 import com.iamonzon.dory.data.repository.CategoryRepository
 import com.iamonzon.dory.data.repository.ItemRepository
-import com.iamonzon.dory.data.model.Item
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine

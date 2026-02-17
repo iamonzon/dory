@@ -38,7 +38,7 @@ class AdvancedSettingsViewModel(
 
     fun setDesiredRetention(value: Double) {
         viewModelScope.launch {
-            settingsRepository.setDesiredRetention(value)
+            settingsRepository.setDesiredRetention(value.coerceIn(0.70, 0.97))
         }
     }
 
