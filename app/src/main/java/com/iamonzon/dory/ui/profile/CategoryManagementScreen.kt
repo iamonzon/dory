@@ -29,8 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
@@ -56,12 +59,12 @@ fun CategoryManagementScreen(
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create Category") },
+            title = { Text(stringResource(R.string.category_create_title)) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("Category name") },
+                    label = { Text(stringResource(R.string.category_create_label)) },
                     singleLine = true
                 )
             },
@@ -70,15 +73,15 @@ fun CategoryManagementScreen(
                     onClick = {
                         showCreateDialog = false
                         newName = ""
-                        Toast.makeText(context, "Category created", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_category_created), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Create")
+                    Text(stringResource(R.string.category_create_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCreateDialog = false; newName = "" }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -88,12 +91,12 @@ fun CategoryManagementScreen(
         val cat = categories.find { it.id == catId }
         AlertDialog(
             onDismissRequest = { renameCategory = null },
-            title = { Text("Rename Category") },
+            title = { Text(stringResource(R.string.category_rename_title)) },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("New name") },
+                    label = { Text(stringResource(R.string.category_rename_label)) },
                     singleLine = true
                 )
             },
@@ -102,15 +105,15 @@ fun CategoryManagementScreen(
                     onClick = {
                         renameCategory = null
                         newName = ""
-                        Toast.makeText(context, "Category renamed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_category_renamed), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Rename")
+                    Text(stringResource(R.string.category_rename_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { renameCategory = null; newName = "" }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -120,16 +123,16 @@ fun CategoryManagementScreen(
         val cat = categories.find { it.id == catId }
         AlertDialog(
             onDismissRequest = { deleteCategory = null },
-            title = { Text("Delete \"${cat?.name}\"?") },
-            text = { Text("What should happen to items in this category?") },
+            title = { Text(stringResource(R.string.category_delete_title, cat?.name ?: "")) },
+            text = { Text(stringResource(R.string.category_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         deleteCategory = null
-                        Toast.makeText(context, "Category deleted, items uncategorized", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_category_deleted_uncategorized), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Text("Uncategorize items")
+                    Text(stringResource(R.string.category_delete_uncategorize))
                 }
             },
             dismissButton = {
@@ -137,13 +140,13 @@ fun CategoryManagementScreen(
                     TextButton(
                         onClick = {
                             deleteCategory = null
-                            Toast.makeText(context, "Category and items deleted", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.toast_category_and_items_deleted), Toast.LENGTH_SHORT).show()
                         }
                     ) {
-                        Text("Delete items too")
+                        Text(stringResource(R.string.category_delete_items_too))
                     }
                     TextButton(onClick = { deleteCategory = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.common_cancel))
                     }
                 }
             }
@@ -153,13 +156,13 @@ fun CategoryManagementScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Categories",
+                title = stringResource(R.string.category_title),
                 onBackClick = onBackClick
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add category")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.category_add_content_description))
             }
         }
     ) { padding ->
@@ -190,8 +193,9 @@ fun CategoryManagementScreen(
                                 text = category.name,
                                 style = MaterialTheme.typography.titleMedium
                             )
+                            val count = itemCounts[category.id] ?: 0
                             Text(
-                                text = "${itemCounts[category.id] ?: 0} items",
+                                text = pluralStringResource(R.plurals.category_item_count, count, count),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -199,7 +203,7 @@ fun CategoryManagementScreen(
                         TextButton(
                             onClick = { deleteCategory = category.id }
                         ) {
-                            Text("Delete")
+                            Text(stringResource(R.string.common_delete))
                         }
                     }
                 }

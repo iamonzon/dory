@@ -20,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
@@ -36,7 +38,7 @@ fun ArchivedItemsScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Archived Items",
+                title = stringResource(R.string.archived_title),
                 onBackClick = onBackClick
             )
         }
@@ -49,7 +51,7 @@ fun ArchivedItemsScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No archived items",
+                    text = stringResource(R.string.archived_empty),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -78,10 +80,10 @@ fun ArchivedItemsScreen(
                             )
                             TextButton(
                                 onClick = {
-                                    Toast.makeText(context, "Item restored", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.toast_item_restored), Toast.LENGTH_SHORT).show()
                                 }
                             ) {
-                                Text("Restore")
+                                Text(stringResource(R.string.archived_restore))
                             }
                         }
                     }

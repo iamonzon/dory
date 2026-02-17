@@ -27,8 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.ItemCard
@@ -45,7 +47,7 @@ fun DashboardScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Dashboard") })
+            TopAppBar(title = { Text(stringResource(R.string.dashboard_title)) })
         }
     ) { padding ->
         if (dashboardItems.isEmpty()) {
@@ -56,7 +58,7 @@ fun DashboardScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No items yet. Tap the Action Hub to add one!",
+                    text = stringResource(R.string.dashboard_empty_message),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -84,33 +86,33 @@ fun DashboardScreen(
                             onDismissRequest = { contextMenuItemId = null }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Edit") },
+                                text = { Text(stringResource(R.string.dashboard_menu_edit)) },
                                 onClick = {
                                     contextMenuItemId = null
                                     onEditItem(dashboardItem.item.id)
                                 },
-                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.dashboard_icon_edit)) }
                             )
                             DropdownMenuItem(
-                                text = { Text("Archive") },
+                                text = { Text(stringResource(R.string.dashboard_menu_archive)) },
                                 onClick = {
                                     contextMenuItemId = null
-                                    Toast.makeText(context, "Item archived", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.toast_item_archived), Toast.LENGTH_SHORT).show()
                                 },
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Edit,
-                                        contentDescription = null
+                                        contentDescription = stringResource(R.string.dashboard_icon_archive)
                                     )
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Delete") },
+                                text = { Text(stringResource(R.string.dashboard_menu_delete)) },
                                 onClick = {
                                     contextMenuItemId = null
-                                    Toast.makeText(context, "Item deleted", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.toast_item_deleted), Toast.LENGTH_SHORT).show()
                                 },
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.dashboard_icon_delete)) }
                             )
                         }
                     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,11 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.tooling.preview.Preview
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.model.ReviewUrgency
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.theme.doryColors
@@ -31,9 +34,9 @@ fun UrgencyIndicator(
 ) {
     val doryColors = MaterialTheme.doryColors
     val (bgColor, icon, contentDescription) = when (urgency) {
-        ReviewUrgency.Overdue -> Triple(doryColors.urgencyRed, Icons.Default.Warning, "Overdue")
-        ReviewUrgency.DueToday -> Triple(doryColors.urgencyYellow, Icons.Default.Warning, "Due today")
-        ReviewUrgency.NotDue -> Triple(doryColors.urgencyGreen, Icons.Default.Check, "Not due")
+        ReviewUrgency.Overdue -> Triple(doryColors.urgencyRed, Icons.Default.Warning, stringResource(R.string.urgency_overdue))
+        ReviewUrgency.DueToday -> Triple(doryColors.urgencyYellow, Icons.Default.Info, stringResource(R.string.urgency_due_today))
+        ReviewUrgency.NotDue -> Triple(doryColors.urgencyGreen, Icons.Default.Check, stringResource(R.string.urgency_not_due))
     }
 
     Box(
