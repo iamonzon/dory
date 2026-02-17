@@ -11,12 +11,13 @@ import com.iamonzon.dory.data.repository.CategoryRepository
 import com.iamonzon.dory.data.repository.ItemRepository
 import com.iamonzon.dory.data.repository.ReviewRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,7 @@ class ReviewViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val category: StateFlow<Category?> =
-        itemRepository.observeById(itemId)
+        item
             .flatMapLatest { loadedItem ->
                 val catId = loadedItem?.categoryId
                 if (catId != null) {
@@ -48,13 +49,17 @@ class ReviewViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    private val _reviewSubmitted = MutableStateFlow(false)
-    val reviewSubmitted: StateFlow<Boolean> = _reviewSubmitted.asStateFlow()
+    private val _reviewSubmitted = Channel<Unit>(Channel.BUFFERED)
+    val reviewSubmitted: Flow<Unit> = _reviewSubmitted.receiveAsFlow()
 
     fun submitReview(rating: Rating, notes: String?) {
         viewModelScope.launch {
-            reviewRepository.submitReview(itemId, rating, notes)
-            _reviewSubmitted.value = true
+            try {
+                reviewRepository.submitReview(itemId, rating, notes)
+                _reviewSubmitted.send(Unit)
+            } catch (_: Exception) {
+                // TODO: expose error state to UI
+            }
         }
     }
 

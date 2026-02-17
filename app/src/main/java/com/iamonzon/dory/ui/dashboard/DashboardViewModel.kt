@@ -30,15 +30,23 @@ class DashboardViewModel(
 
     fun archiveItem(id: Long) {
         viewModelScope.launch {
-            itemRepository.archive(id)
-            _events.send(DashboardEvent.ItemArchived(id))
+            try {
+                itemRepository.archive(id)
+                _events.send(DashboardEvent.ItemArchived(id))
+            } catch (_: Exception) {
+                // TODO: expose error state to UI
+            }
         }
     }
 
     fun deleteItem(id: Long) {
         viewModelScope.launch {
-            itemRepository.deleteById(id)
-            _events.send(DashboardEvent.ItemDeleted(id))
+            try {
+                itemRepository.deleteById(id)
+                _events.send(DashboardEvent.ItemDeleted(id))
+            } catch (_: Exception) {
+                // TODO: expose error state to UI
+            }
         }
     }
 
