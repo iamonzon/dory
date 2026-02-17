@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,20 +31,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
-import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.ItemCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
+    viewModel: DashboardViewModel,
     onItemClick: (Long) -> Unit,
     onEditItem: (Long) -> Unit
 ) {
     val context = LocalContext.current
-    val dashboardItems = remember { MockData.dashboardItems }
+    val dashboardItems by viewModel.dashboardItems.collectAsStateWithLifecycle()
     var contextMenuItemId by remember { mutableStateOf<Long?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is DashboardEvent.ItemArchived ->
+                    Toast.makeText(context, context.getString(R.string.toast_item_archived), Toast.LENGTH_SHORT).show()
+                is DashboardEvent.ItemDeleted ->
+                    Toast.makeText(context, context.getString(R.string.toast_item_deleted), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -96,8 +109,9 @@ fun DashboardScreen(
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.dashboard_menu_archive)) },
                                 onClick = {
+                                    val id = dashboardItem.item.id
                                     contextMenuItemId = null
-                                    Toast.makeText(context, context.getString(R.string.toast_item_archived), Toast.LENGTH_SHORT).show()
+                                    viewModel.archiveItem(id)
                                 },
                                 leadingIcon = {
                                     Icon(
@@ -109,8 +123,9 @@ fun DashboardScreen(
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.dashboard_menu_delete)) },
                                 onClick = {
+                                    val id = dashboardItem.item.id
                                     contextMenuItemId = null
-                                    Toast.makeText(context, context.getString(R.string.toast_item_deleted), Toast.LENGTH_SHORT).show()
+                                    viewModel.deleteItem(id)
                                 },
                                 leadingIcon = { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.dashboard_icon_delete)) }
                             )
@@ -119,13 +134,5 @@ fun DashboardScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun DashboardScreenPreview() {
-    DoryTheme {
-        DashboardScreen(onItemClick = {}, onEditItem = {})
     }
 }

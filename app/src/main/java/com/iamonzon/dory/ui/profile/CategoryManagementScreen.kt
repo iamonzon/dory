@@ -1,6 +1,5 @@
 package com.iamonzon.dory.ui.profile
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,28 +27,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
-import com.iamonzon.dory.data.mock.MockData
-import com.iamonzon.dory.ui.theme.DoryTheme
+import com.iamonzon.dory.data.repository.CategoryDeleteStrategy
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 
 @Composable
 fun CategoryManagementScreen(
+    viewModel: CategoryManagementViewModel,
     onBackClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val categories = remember { MockData.categories }
-    val itemCounts = remember {
-        MockData.items
-            .filter { !it.isArchived }
-            .groupBy { it.categoryId }
-            .mapValues { it.value.size }
-    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var renameCategory by remember { mutableStateOf<Long?>(null) }
@@ -71,9 +62,9 @@ fun CategoryManagementScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
+                        viewModel.createCategory(newName)
                         showCreateDialog = false
                         newName = ""
-                        Toast.makeText(context, context.getString(R.string.toast_category_created), Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text(stringResource(R.string.category_create_button))
@@ -88,7 +79,6 @@ fun CategoryManagementScreen(
     }
 
     renameCategory?.let { catId ->
-        val cat = categories.find { it.id == catId }
         AlertDialog(
             onDismissRequest = { renameCategory = null },
             title = { Text(stringResource(R.string.category_rename_title)) },
@@ -103,9 +93,9 @@ fun CategoryManagementScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
+                        viewModel.renameCategory(catId, newName)
                         renameCategory = null
                         newName = ""
-                        Toast.makeText(context, context.getString(R.string.toast_category_renamed), Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text(stringResource(R.string.category_rename_button))
@@ -120,16 +110,16 @@ fun CategoryManagementScreen(
     }
 
     deleteCategory?.let { catId ->
-        val cat = categories.find { it.id == catId }
+        val cat = uiState.categories.find { it.category.id == catId }
         AlertDialog(
             onDismissRequest = { deleteCategory = null },
-            title = { Text(stringResource(R.string.category_delete_title, cat?.name ?: "")) },
+            title = { Text(stringResource(R.string.category_delete_title, cat?.category?.name ?: "")) },
             text = { Text(stringResource(R.string.category_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
+                        viewModel.deleteCategory(catId, CategoryDeleteStrategy.UncategorizeItems)
                         deleteCategory = null
-                        Toast.makeText(context, context.getString(R.string.toast_category_deleted_uncategorized), Toast.LENGTH_SHORT).show()
                     }
                 ) {
                     Text(stringResource(R.string.category_delete_uncategorize))
@@ -139,8 +129,8 @@ fun CategoryManagementScreen(
                 Row {
                     TextButton(
                         onClick = {
+                            viewModel.deleteCategory(catId, CategoryDeleteStrategy.DeleteItems)
                             deleteCategory = null
-                            Toast.makeText(context, context.getString(R.string.toast_category_and_items_deleted), Toast.LENGTH_SHORT).show()
                         }
                     ) {
                         Text(stringResource(R.string.category_delete_items_too))
@@ -173,12 +163,12 @@ fun CategoryManagementScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(categories, key = { it.id }) { category ->
+            items(uiState.categories, key = { it.category.id }) { categoryWithCount ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        newName = category.name
-                        renameCategory = category.id
+                        newName = categoryWithCount.category.name
+                        renameCategory = categoryWithCount.category.id
                     }
                 ) {
                     Row(
@@ -190,18 +180,17 @@ fun CategoryManagementScreen(
                     ) {
                         Column {
                             Text(
-                                text = category.name,
+                                text = categoryWithCount.category.name,
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            val count = itemCounts[category.id] ?: 0
                             Text(
-                                text = pluralStringResource(R.plurals.category_item_count, count, count),
+                                text = pluralStringResource(R.plurals.category_item_count, categoryWithCount.itemCount, categoryWithCount.itemCount),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         TextButton(
-                            onClick = { deleteCategory = category.id }
+                            onClick = { deleteCategory = categoryWithCount.category.id }
                         ) {
                             Text(stringResource(R.string.common_delete))
                         }
@@ -209,13 +198,5 @@ fun CategoryManagementScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun CategoryManagementScreenPreview() {
-    DoryTheme {
-        CategoryManagementScreen(onBackClick = {})
     }
 }

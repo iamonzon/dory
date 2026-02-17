@@ -156,13 +156,13 @@ class ReviewViewModelTest {
     }
 
     @Test
-    fun `reviewSubmitted is initially false`() = runTest {
-        assertFalse(viewModel.reviewSubmitted.value)
-    }
-
-    @Test
-    fun `submitReview calls repository and sets reviewSubmitted`() = runTest {
+    fun `submitReview calls repository and emits reviewSubmitted`() = runTest {
         fakeItemDao.itemsById[1L] = testItemEntity
+
+        var emitted = false
+        backgroundScope.launch(testDispatcher) {
+            viewModel.reviewSubmitted.collect { emitted = true }
+        }
 
         viewModel.submitReview(Rating.Good, "Great!")
 
@@ -171,19 +171,24 @@ class ReviewViewModelTest {
         assertEquals(1L, inserted.itemId)
         assertEquals(Rating.Good.value, inserted.rating)
         assertEquals("Great!", inserted.notes)
-        assertTrue(viewModel.reviewSubmitted.value)
+        assertTrue(emitted)
     }
 
     @Test
     fun `submitReview with null notes`() = runTest {
         fakeItemDao.itemsById[1L] = testItemEntity
 
+        var emitted = false
+        backgroundScope.launch(testDispatcher) {
+            viewModel.reviewSubmitted.collect { emitted = true }
+        }
+
         viewModel.submitReview(Rating.Hard, null)
 
         val inserted = fakeReviewDao.insertedReviews.first()
         assertEquals(Rating.Hard.value, inserted.rating)
         assertNull(inserted.notes)
-        assertTrue(viewModel.reviewSubmitted.value)
+        assertTrue(emitted)
     }
 
     @Test
