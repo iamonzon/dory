@@ -87,7 +87,7 @@ class CreationViewModel(
         val state = _uiState.value
         return when (state.currentStep) {
             CreationStep.TITLE -> state.title.isNotBlank()
-            CreationStep.SOURCE -> true
+            CreationStep.SOURCE -> state.source.isNotBlank()
             CreationStep.CATEGORY -> true
             CreationStep.NOTES -> true
         }
@@ -95,16 +95,21 @@ class CreationViewModel(
 
     fun saveItem() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
             val state = _uiState.value
-            val item = Item(
-                title = state.title,
-                source = state.source,
-                categoryId = state.selectedCategoryId,
-                notes = state.notes.ifBlank { null }
-            )
-            itemRepository.insert(item)
-            _uiState.update { it.copy(isSaving = false, savedSuccessfully = true) }
+            if (state.title.isBlank() || state.source.isBlank()) return@launch
+            _uiState.update { it.copy(isSaving = true) }
+            try {
+                val item = Item(
+                    title = state.title,
+                    source = state.source,
+                    categoryId = state.selectedCategoryId,
+                    notes = state.notes.ifBlank { null }
+                )
+                itemRepository.insert(item)
+                _uiState.update { it.copy(isSaving = false, savedSuccessfully = true) }
+            } catch (_: Exception) {
+                _uiState.update { it.copy(isSaving = false) }
+            }
         }
     }
 
