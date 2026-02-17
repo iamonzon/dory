@@ -31,11 +31,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iamonzon.dory.R
+import com.iamonzon.dory.algorithm.Rating
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 import com.iamonzon.dory.ui.theme.DoryTheme
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+@Composable
+private fun ratingDisplayName(rating: Rating): String = when (rating) {
+    Rating.Again -> stringResource(R.string.review_rating_again)
+    Rating.Hard -> stringResource(R.string.review_rating_hard)
+    Rating.Good -> stringResource(R.string.review_rating_good)
+    Rating.Easy -> stringResource(R.string.review_rating_easy)
+}
 
 @Composable
 fun ReviewScreen(
@@ -53,11 +62,11 @@ fun ReviewScreen(
             .withZone(ZoneId.systemDefault())
     }
 
-    val ratingLabels = listOf(
-        stringResource(R.string.review_rating_again),
-        stringResource(R.string.review_rating_hard),
-        stringResource(R.string.review_rating_good),
-        stringResource(R.string.review_rating_easy)
+    val ratingOptions = listOf(
+        Rating.Again to stringResource(R.string.review_rating_again),
+        Rating.Hard to stringResource(R.string.review_rating_hard),
+        Rating.Good to stringResource(R.string.review_rating_good),
+        Rating.Easy to stringResource(R.string.review_rating_easy)
     )
 
     Scaffold(
@@ -128,7 +137,7 @@ fun ReviewScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = review.rating.name,
+                                    text = ratingDisplayName(review.rating),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(
@@ -164,8 +173,8 @@ fun ReviewScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ratingLabels.forEach { label ->
-                    if (label == stringResource(R.string.review_rating_good) || label == stringResource(R.string.review_rating_easy)) {
+                ratingOptions.forEach { (rating, label) ->
+                    if (rating == Rating.Good || rating == Rating.Easy) {
                         Button(
                             onClick = {
                                 Toast.makeText(context, context.getString(R.string.toast_reviewed_as, label), Toast.LENGTH_SHORT).show()

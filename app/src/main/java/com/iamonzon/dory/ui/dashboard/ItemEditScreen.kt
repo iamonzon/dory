@@ -28,11 +28,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.iamonzon.dory.R
+import com.iamonzon.dory.algorithm.Rating
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+@Composable
+private fun ratingDisplayName(rating: Rating): String = when (rating) {
+    Rating.Again -> stringResource(R.string.review_rating_again)
+    Rating.Hard -> stringResource(R.string.review_rating_hard)
+    Rating.Good -> stringResource(R.string.review_rating_good)
+    Rating.Easy -> stringResource(R.string.review_rating_easy)
+}
 
 @Composable
 fun ItemEditScreen(
@@ -123,7 +132,7 @@ fun ItemEditScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = review.rating.name,
+                                    text = ratingDisplayName(review.rating),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(

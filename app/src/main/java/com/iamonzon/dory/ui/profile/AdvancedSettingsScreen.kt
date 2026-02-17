@@ -60,7 +60,7 @@ fun AdvancedSettingsScreen(
             )
 
             Text(
-                text = "%.0f%%".format(desiredRetention * 100),
+                text = stringResource(R.string.advanced_retention_format, desiredRetention * 100),
                 style = MaterialTheme.typography.titleLarge
             )
 
@@ -98,7 +98,7 @@ fun AdvancedSettingsScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "%.4f".format(weight),
+                        text = stringResource(R.string.advanced_weight_format, weight),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
