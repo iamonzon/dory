@@ -166,8 +166,10 @@ class CreationViewModelTest {
     }
 
     @Test
-    fun `canAdvance is always true on SOURCE`() = runTest {
+    fun `canAdvance on SOURCE requires non-blank source`() = runTest {
         viewModel.nextStep()
+        assertFalse(viewModel.canAdvance())
+        viewModel.updateSource("some-source")
         assertTrue(viewModel.canAdvance())
     }
 

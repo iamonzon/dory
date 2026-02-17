@@ -1,6 +1,5 @@
 package com.iamonzon.dory.ui.dashboard
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,19 +17,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
 import com.iamonzon.dory.algorithm.Rating
-import com.iamonzon.dory.data.mock.MockData
-import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -45,16 +40,18 @@ private fun ratingDisplayName(rating: Rating): String = when (rating) {
 
 @Composable
 fun ItemEditScreen(
-    itemId: Long,
+    viewModel: ItemEditViewModel,
     onBackClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val item = remember { MockData.itemById(itemId) }
-    val recentReviews = remember { MockData.reviewsForItem(itemId).takeLast(3) }
+    val item by viewModel.item.collectAsStateWithLifecycle()
+    val editState by viewModel.editState.collectAsStateWithLifecycle()
+    val recentReviews by viewModel.recentReviews.collectAsStateWithLifecycle()
 
-    var title by remember { mutableStateOf(item?.title ?: "") }
-    var source by remember { mutableStateOf(item?.source ?: "") }
-    var notes by remember { mutableStateOf(item?.notes ?: "") }
+    LaunchedEffect(editState.savedSuccessfully) {
+        if (editState.savedSuccessfully) {
+            onBackClick()
+        }
+    }
 
     val dateFormatter = remember {
         DateTimeFormatter.ofPattern("MMM d, yyyy")
@@ -86,24 +83,24 @@ fun ItemEditScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
+                value = editState.title,
+                onValueChange = { viewModel.updateTitle(it) },
                 label = { Text(stringResource(R.string.edit_label_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             OutlinedTextField(
-                value = source,
-                onValueChange = { source = it },
+                value = editState.source,
+                onValueChange = { viewModel.updateSource(it) },
                 label = { Text(stringResource(R.string.edit_label_source)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             OutlinedTextField(
-                value = notes,
-                onValueChange = { notes = it },
+                value = editState.notes,
+                onValueChange = { viewModel.updateNotes(it) },
                 label = { Text(stringResource(R.string.edit_label_notes)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
@@ -153,22 +150,11 @@ fun ItemEditScreen(
             }
 
             Button(
-                onClick = {
-                    Toast.makeText(context, context.getString(R.string.toast_changes_saved), Toast.LENGTH_SHORT).show()
-                    onBackClick()
-                },
+                onClick = { viewModel.saveChanges() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.edit_save_changes))
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ItemEditScreenPreview() {
-    DoryTheme {
-        ItemEditScreen(itemId = 1L, onBackClick = {})
     }
 }

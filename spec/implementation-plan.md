@@ -6,130 +6,114 @@ Six phases, each producing a working increment that can be manually tested.
 
 ---
 
-## Phase 1: Domain Models + FSRS Algorithm
+## Phase 1: Domain Models + FSRS Algorithm ✅
 
 **Goal:** Pure Kotlin foundation with no Android dependencies. Fully testable in isolation.
 
 **Deliverables:**
-- [ ] Domain models: `Item`, `Review`, `Category`, `Rating`, `ReviewUrgency`
-- [ ] `FsrsParameters` data class with FSRS-4.5 default values (w0-w16)
-- [ ] `Fsrs` class implementing all formulas:
+- [x] Domain models: `Item`, `Review`, `Category`, `Rating`, `ReviewUrgency`
+- [x] `FsrsParameters` data class with FSRS-4.5 default values (w0-w16)
+- [x] `Fsrs` class implementing all formulas:
   - Initial stability and difficulty
   - Difficulty update with mean reversion
   - Stability after recall
   - Stability after lapse
   - Retrievability (forgetting curve)
   - Interval calculation
-- [ ] Unit tests for every formula and edge case
-- [ ] Unit tests for full scheduling scenarios (simulate review sequences)
+- [x] Unit tests for every formula and edge case
+- [x] Unit tests for full scheduling scenarios (simulate review sequences)
 
 **Verification:** All unit tests pass. No Android code needed to run them.
 
 ---
 
-## Phase 2: UI Shells with Mock Data
+## Phase 2: UI Shells with Mock Data ✅
 
 **Goal:** All screens navigable with hardcoded mock data. Establishes the visual structure and navigation flow.
 
 **Deliverables:**
-- [ ] Theme setup: Material 3 colors (including urgency red/yellow/green), typography, shapes, light/dark support
-- [ ] Colorblind-safe urgency indicators (distinct icons per urgency level)
-- [ ] Bottom navigation bar: Dashboard (left), Action Hub (center), Profile (right)
-- [ ] Navigation graph with all routes
-- [ ] Dashboard screen: flat list with mock items, urgency colors, tap/long-press interactions
-- [ ] Action Hub: dialog with "Add new item" / "Start review session"
-- [ ] Item Creation: step-by-step flow with "More options" on step 2
-- [ ] Review screen: item detail, notes, rating buttons (Again/Hard/Good/Easy)
-- [ ] Review Session screen: filtered list of mock due items
-- [ ] Item Edit screen: edit fields + last 3 reviews
-- [ ] Profile screen: mastery stats, notification time, links to sub-screens
-- [ ] Category Management screen: list with rename/delete/create
-- [ ] Archived Items screen: list with restore option
-- [ ] Advanced Settings screen: FSRS parameters, desired retention
-- [ ] Onboarding screens (2-3 screens, placeholder content)
-- [ ] Context menu on dashboard long-press: Edit, Archive, Delete
-- [ ] Toast messages for archive/delete actions
+- [x] Theme setup: Material 3 colors (including urgency red/yellow/green), typography, shapes, light/dark support
+- [x] Colorblind-safe urgency indicators (distinct icons per urgency level)
+- [x] Bottom navigation bar: Dashboard (left), Action Hub (center), Profile (right)
+- [x] Navigation graph with all routes
+- [x] Dashboard screen: flat list with mock items, urgency colors, tap/long-press interactions
+- [x] Action Hub: dialog with "Add new item" / "Start review session"
+- [x] Item Creation: step-by-step flow with "More options" on step 2
+- [x] Review screen: item detail, notes, rating buttons (Again/Hard/Good/Easy)
+- [x] Review Session screen: filtered list of mock due items
+- [x] Item Edit screen: edit fields + last 3 reviews
+- [x] Profile screen: mastery stats, notification time, links to sub-screens
+- [x] Category Management screen: list with rename/delete/create
+- [x] Archived Items screen: list with restore option
+- [x] Advanced Settings screen: FSRS parameters, desired retention
+- [x] Onboarding screens (2-3 screens, placeholder content)
+- [x] Context menu on dashboard long-press: Edit, Archive, Delete
+- [x] Toast messages for archive/delete actions
 
 **Verification:** Can navigate through every screen. All UI elements visible with mock data. Light and dark themes work.
 
 ---
 
-## Phase 3: Room Database + DAOs + Repositories
+## Phase 3: Room Database + DAOs + Repositories ✅
 
 **Goal:** Real persistence layer. Data survives app restarts.
 
 **Deliverables:**
-- [ ] Room entities: `ItemEntity`, `ReviewEntity`, `CategoryEntity`
-- [ ] Type converters for `Instant` and any JSON fields
-- [ ] `DoryDatabase` with version 1 schema
-- [ ] `ItemDao`: insert, update, delete, get by ID, get all active, get archived
-- [ ] `ReviewDao`: insert, update, delete, get by item ID (ordered), get latest N by item ID
-- [ ] `CategoryDao`: insert, update, delete, get all, get by ID
-- [ ] `ItemRepository`: CRUD + urgency computation using Fsrs
-- [ ] `ReviewRepository`: CRUD + S/D computation on review submission
-- [ ] `CategoryRepository`: CRUD + cascade handling (delete/archive/uncategorize items)
-- [ ] `SettingsRepository`: DataStore-backed storage for global FSRS params, retention, notification time, onboarding flag
-- [ ] `AppContainer` in `DoryApplication`: wires database, Fsrs, repositories
-- [ ] Instrumented tests for DAOs (in-memory database)
-- [ ] Unit tests for repositories (verify entity↔model mapping, FSRS integration)
+- [x] Room entities: `ItemEntity`, `ReviewEntity`, `CategoryEntity`
+- [x] Type converters for `Instant` and any JSON fields
+- [x] `DoryDatabase` with version 1 schema
+- [x] `ItemDao`: insert, update, delete, get by ID, get all active, get archived
+- [x] `ReviewDao`: insert, update, delete, get by item ID (ordered), get latest N by item ID
+- [x] `CategoryDao`: insert, update, delete, get all, get by ID
+- [x] `ItemRepository`: CRUD + urgency computation using Fsrs
+- [x] `ReviewRepository`: CRUD + S/D computation on review submission
+- [x] `CategoryRepository`: CRUD + cascade handling (delete/archive/uncategorize items)
+- [x] `SettingsRepository`: DataStore-backed storage for global FSRS params, retention, notification time, onboarding flag
+- [x] `AppContainer` in `DoryApplication`: wires database, Fsrs, repositories
+- [x] Instrumented tests for DAOs (in-memory database)
+- [x] Unit tests for repositories (verify entity↔model mapping, FSRS integration)
 
 **Verification:** All instrumented and unit tests pass. Repositories correctly compute urgency and schedule reviews.
 
 ---
 
-## Phase 4: Wire UI to Real Data
+## Phase 4: Wire UI to Real Data — IN PROGRESS
 
 **Goal:** Replace mock data with real repositories. The app becomes functional.
 
-**Deliverables:**
-- [ ] `DashboardViewModel`: observe items from repository, expose sorted/colored list as StateFlow
-- [ ] `CreationViewModel`: handle creation flow, validate inputs, save via repository
-- [ ] `ReviewViewModel`: load item + review history, submit review with rating/notes, compute and store S/D
-- [ ] `ProfileViewModel`: compute mastery stats (mastered/struggling counts, category breakdown)
-- [ ] Wire Category Management to `CategoryRepository` (rename, delete with 3-option dialog, create)
-- [ ] Wire Archived Items to repository (list, restore)
-- [ ] Wire Advanced Settings to `SettingsRepository` (read/write FSRS params, retention)
-- [ ] Wire notification time setting in Profile to `SettingsRepository`
-- [ ] Wire onboarding flag: check on launch, set after completion
-- [ ] Item Edit screen: load item + last 3 reviews, save changes, cascade S/D recomputation
-- [ ] Dashboard context menu actions: archive (immediate + toast), delete (confirm + toast), edit (navigate)
-- [ ] Review session: filtered list from repository, remove reviewed items
-- [ ] Empty states: dashboard when no items, review session when nothing due
+**Completed:**
+- [x] `DashboardViewModel`: observe items from repository, expose sorted/colored list as StateFlow
+- [x] `CreationViewModel`: handle creation flow, validate inputs, save via repository
+- [x] `ReviewViewModel`: load item + review history, submit review with rating/notes, compute and store S/D
+- [x] `ProfileViewModel`: compute mastery stats (mastered/struggling counts, category breakdown)
 
-**Verification:** Can create items, review them, see urgency colors update, archive/delete, manage categories. Data persists across app restarts.
+**Remaining:** All screen-to-ViewModel wiring, onboarding flag, and context menu actions. See [`docs/streams/stream-6-integration.md`](../docs/streams/stream-6-integration.md).
 
 ---
 
-## Phase 5: Notifications
+## Phase 5: Notifications — IN PROGRESS
 
 **Goal:** Daily digest notification working.
 
-**Deliverables:**
-- [ ] Notification channel setup in `DoryApplication`
-- [ ] `DailyDigestWorker`: queries due/overdue counts, builds notification, skips if nothing due
-- [ ] `DailyDigestScheduler`: schedules periodic WorkManager task at user-configured time
-- [ ] Reschedule when notification time changes in Profile
-- [ ] Notification tap opens app to dashboard
+**Completed:**
+- [x] `DailyDigestWorker`: queries due/overdue counts, builds notification, skips if nothing due
+- [x] `DailyDigestScheduler`: schedules periodic WorkManager task at user-configured time
+- [x] Notification tap opens app to dashboard
 
-**Verification:** Notification appears at configured time with correct counts. Tapping opens dashboard.
+**Remaining:** Notification channel init in `DoryApplication` and rescheduling on time change. See [`docs/streams/stream-6-integration.md`](../docs/streams/stream-6-integration.md).
 
 ---
 
-## Phase 6: Polish + Edge Cases
+## Phase 6: Polish + Edge Cases — IN PROGRESS
 
 **Goal:** Handle all edge cases, finalize onboarding, clean up.
 
-**Deliverables:**
-- [ ] Onboarding content: 2-3 screens with real copy about the forgetting curve and how Dory works
-- [ ] All-items-archived/deleted empty state (not re-showing onboarding)
-- [ ] Category deletion 3-option dialog: delete items / archive items / move to uncategorized
-- [ ] Same-day review behavior verification
-- [ ] String resources audit: all user-facing strings in `strings.xml`
-- [ ] Accessibility pass: content descriptions, colorblind-safe indicators verified
-- [ ] Manual testing of all 11 use cases end-to-end
-- [ ] ProGuard/R8 rules for release build (if needed)
+**Completed:**
+- [x] Onboarding content: 2-3 screens with real copy about the forgetting curve and how Dory works
+- [x] String resources audit: all user-facing strings in `strings.xml`
+- [x] Accessibility pass: content descriptions, colorblind-safe indicators verified
 
-**Verification:** All use cases (UC1-UC11) work correctly. No hardcoded strings. Accessibility features functional.
+**Remaining:** Edge-case handling, end-to-end testing, and release build config. Depends on Stream 6 integration completing first. See [`docs/streams/stream-6-integration.md`](../docs/streams/stream-6-integration.md).
 
 ---
 
