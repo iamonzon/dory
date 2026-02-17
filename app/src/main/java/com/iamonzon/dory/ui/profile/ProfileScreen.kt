@@ -26,8 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 
@@ -42,7 +45,7 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Profile") })
+            TopAppBar(title = { Text(stringResource(R.string.profile_title)) })
         }
     ) { padding ->
         Column(
@@ -54,21 +57,21 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Mastery stats
-            Text(text = "Mastery Overview", style = MaterialTheme.typography.titleLarge)
+            Text(text = stringResource(R.string.profile_mastery_overview), style = MaterialTheme.typography.titleLarge)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatCard(label = "Total", value = stats.totalItems.toString())
-                StatCard(label = "Mastered", value = stats.masteredCount.toString())
-                StatCard(label = "Struggling", value = stats.strugglingCount.toString())
+                StatCard(label = stringResource(R.string.profile_stat_total), value = stats.totalItems.toString())
+                StatCard(label = stringResource(R.string.profile_stat_mastered), value = stats.masteredCount.toString())
+                StatCard(label = stringResource(R.string.profile_stat_struggling), value = stats.strugglingCount.toString())
             }
 
             HorizontalDivider()
 
             // By category
-            Text(text = "By Category", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.profile_by_category), style = MaterialTheme.typography.titleMedium)
             stats.byCategory.forEach { (name, count) ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -76,7 +79,7 @@ fun ProfileScreen(
                 ) {
                     Text(text = name, style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = "$count items",
+                        text = pluralStringResource(R.plurals.category_item_count, count, count),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -86,9 +89,9 @@ fun ProfileScreen(
             HorizontalDivider()
 
             // Notification time (mock)
-            Text(text = "Daily Reminder", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.profile_daily_reminder), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = "9:00 AM",
+                text = stringResource(R.string.profile_notification_time),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -96,21 +99,21 @@ fun ProfileScreen(
             HorizontalDivider()
 
             // Navigation links
-            Text(text = "Settings", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.profile_settings), style = MaterialTheme.typography.titleMedium)
 
             NavigationCard(
-                title = "Category Management",
-                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                title = stringResource(R.string.profile_category_management),
+                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.profile_icon_category_management)) },
                 onClick = onCategoryManagement
             )
             NavigationCard(
-                title = "Archived Items",
-                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                title = stringResource(R.string.profile_archived_items),
+                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.profile_icon_archived_items)) },
                 onClick = onArchivedItems
             )
             NavigationCard(
-                title = "Advanced Settings",
-                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                title = stringResource(R.string.profile_advanced_settings),
+                icon = { Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.profile_icon_advanced_settings)) },
                 onClick = onAdvancedSettings
             )
         }

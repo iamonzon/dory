@@ -1,3 +1,148 @@
 <resources>
     <string name="app_name">dory</string>
+
+    <!-- Common -->
+    <string name="common_back">Back</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_save">Save</string>
+    <string name="common_next">Next</string>
+    <string name="common_navigate_back">Navigate back</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_empty_message">No items yet. Tap the Action Hub to add one!</string>
+    <string name="dashboard_menu_edit">Edit</string>
+    <string name="dashboard_menu_archive">Archive</string>
+    <string name="dashboard_menu_delete">Delete</string>
+    <string name="dashboard_icon_edit">Edit item</string>
+    <string name="dashboard_icon_archive">Archive item</string>
+    <string name="dashboard_icon_delete">Delete item</string>
+
+    <!-- Item Edit -->
+    <string name="edit_title">Edit Item</string>
+    <string name="edit_item_not_found">Item not found</string>
+    <string name="edit_label_title">Title</string>
+    <string name="edit_label_source">Source</string>
+    <string name="edit_label_notes">Notes</string>
+    <string name="edit_recent_reviews">Recent Reviews</string>
+    <string name="edit_no_reviews">No reviews yet</string>
+    <string name="edit_save_changes">Save Changes</string>
+    <string name="toast_changes_saved">Changes saved!</string>
+
+    <!-- Item Creation -->
+    <string name="creation_title">Add New Item</string>
+    <string name="creation_step_format">Step %1$d of %2$d</string>
+    <string name="creation_title_prompt">What do you want to remember?</string>
+    <string name="creation_title_label">Title</string>
+    <string name="creation_source_prompt">Where did you learn this?</string>
+    <string name="creation_source_label">Source (URL, book, etc.)</string>
+    <string name="creation_more_options">More options</string>
+    <string name="creation_category_prompt">Pick a category</string>
+    <string name="creation_category_label">Category</string>
+    <string name="creation_notes_prompt">Any notes to remember?</string>
+    <string name="creation_notes_label">Notes (optional)</string>
+    <string name="creation_back">Back</string>
+    <string name="creation_next">Next</string>
+    <string name="creation_save">Save</string>
+    <string name="toast_item_saved">Item saved!</string>
+
+    <!-- Review -->
+    <string name="review_title">Review</string>
+    <string name="review_item_not_found">Item not found</string>
+    <string name="review_category_format">Category: %1$s</string>
+    <string name="review_history_title">Review History</string>
+    <string name="review_no_reviews">No reviews yet</string>
+    <string name="review_new_review_title">New Review</string>
+    <string name="review_notes_label">Notes (optional)</string>
+    <string name="review_rating_again">Again</string>
+    <string name="review_rating_hard">Hard</string>
+    <string name="review_rating_good">Good</string>
+    <string name="review_rating_easy">Easy</string>
+    <string name="toast_reviewed_as">Reviewed as %1$s</string>
+
+    <!-- Review Session -->
+    <string name="review_session_title">Review Session</string>
+    <string name="review_session_empty">All caught up! No items due for review.</string>
+    <plurals name="review_session_count">
+        <item quantity="one">%d item to review</item>
+        <item quantity="other">%d items to review</item>
+    </plurals>
+
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_mastery_overview">Mastery Overview</string>
+    <string name="profile_stat_total">Total</string>
+    <string name="profile_stat_mastered">Mastered</string>
+    <string name="profile_stat_struggling">Struggling</string>
+    <string name="profile_by_category">By Category</string>
+    <plurals name="category_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <string name="profile_daily_reminder">Daily Reminder</string>
+    <string name="profile_notification_time">9:00 AM</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_category_management">Category Management</string>
+    <string name="profile_archived_items">Archived Items</string>
+    <string name="profile_advanced_settings">Advanced Settings</string>
+    <string name="profile_icon_category_management">Category management</string>
+    <string name="profile_icon_archived_items">Archived items</string>
+    <string name="profile_icon_advanced_settings">Advanced settings</string>
+
+    <!-- Category Management -->
+    <string name="category_title">Categories</string>
+    <string name="category_create_title">Create Category</string>
+    <string name="category_create_label">Category name</string>
+    <string name="category_create_button">Create</string>
+    <string name="category_rename_title">Rename Category</string>
+    <string name="category_rename_label">New name</string>
+    <string name="category_rename_button">Rename</string>
+    <string name="category_delete_title">Delete \"%1$s\"?</string>
+    <string name="category_delete_message">What should happen to items in this category?</string>
+    <string name="category_delete_uncategorize">Uncategorize items</string>
+    <string name="category_delete_items_too">Delete items too</string>
+    <string name="category_add_content_description">Add category</string>
+    <string name="toast_category_created">Category created</string>
+    <string name="toast_category_renamed">Category renamed</string>
+    <string name="toast_category_deleted_uncategorized">Category deleted, items uncategorized</string>
+    <string name="toast_category_and_items_deleted">Category and items deleted</string>
+
+    <!-- Archived Items -->
+    <string name="archived_title">Archived Items</string>
+    <string name="archived_empty">No archived items</string>
+    <string name="archived_restore">Restore</string>
+    <string name="toast_item_restored">Item restored</string>
+
+    <!-- Toast messages -->
+    <string name="toast_item_archived">Item archived</string>
+    <string name="toast_item_deleted">Item deleted</string>
+
+    <!-- Advanced Settings -->
+    <string name="advanced_title">Advanced Settings</string>
+    <string name="advanced_desired_retention">Desired Retention</string>
+    <string name="advanced_retention_description">Target probability of recalling an item at review time.</string>
+    <string name="advanced_retention_format">%.0f%%</string>
+    <string name="advanced_retention_min">70%</string>
+    <string name="advanced_retention_max">97%</string>
+    <string name="advanced_fsrs_title">FSRS Parameters (Default)</string>
+    <string name="advanced_fsrs_description">These weights are from the published FSRS-4.5 defaults. They will be personalized as you review items.</string>
+    <string name="advanced_weight_label">w%1$d</string>
+    <string name="advanced_weight_format">%.4f</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">Welcome to Dory</string>
+    <string name="onboarding_description_1">You forget 70%% of what you learn within 24 hours. Dory uses spaced repetition to beat the forgetting curve.</string>
+    <string name="onboarding_title_2">Add What Matters</string>
+    <string name="onboarding_description_2">Save concepts, articles, and ideas you want to remember. Organize them by category to keep things tidy.</string>
+    <string name="onboarding_title_3">Review at the Right Time</string>
+    <string name="onboarding_description_3">Dory uses the FSRS algorithm to schedule reviews at the optimal moment — right before you\'d forget. Rate each review and watch your mastery grow.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_next">Next</string>
+
+    <!-- Urgency Indicator -->
+    <string name="urgency_overdue">Overdue</string>
+    <string name="urgency_due_today">Due today</string>
+    <string name="urgency_not_due">Not due</string>
 </resources>

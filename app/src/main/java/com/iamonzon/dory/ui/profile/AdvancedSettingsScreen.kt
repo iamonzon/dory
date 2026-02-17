@@ -19,8 +19,10 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.algorithm.FsrsParameters
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
@@ -37,7 +39,7 @@ fun AdvancedSettingsScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Advanced Settings",
+                title = stringResource(R.string.advanced_title),
                 onBackClick = onBackClick
             )
         }
@@ -50,15 +52,15 @@ fun AdvancedSettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "Desired Retention", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.advanced_desired_retention), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = "Target probability of recalling an item at review time.",
+                text = stringResource(R.string.advanced_retention_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Text(
-                text = "%.0f%%".format(desiredRetention * 100),
+                text = stringResource(R.string.advanced_retention_format, desiredRetention * 100),
                 style = MaterialTheme.typography.titleLarge
             )
 
@@ -73,15 +75,15 @@ fun AdvancedSettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("70%", style = MaterialTheme.typography.labelMedium)
-                Text("97%", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.advanced_retention_min), style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.advanced_retention_max), style = MaterialTheme.typography.labelMedium)
             }
 
             HorizontalDivider()
 
-            Text(text = "FSRS Parameters (Default)", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.advanced_fsrs_title), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = "These weights are from the published FSRS-4.5 defaults. They will be personalized as you review items.",
+                text = stringResource(R.string.advanced_fsrs_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -92,11 +94,11 @@ fun AdvancedSettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "w$index",
+                        text = stringResource(R.string.advanced_weight_label, index),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "%.4f".format(weight),
+                        text = stringResource(R.string.advanced_weight_format, weight),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

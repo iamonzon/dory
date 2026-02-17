@@ -27,13 +27,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
+import com.iamonzon.dory.algorithm.Rating
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 import com.iamonzon.dory.ui.theme.DoryTheme
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+@Composable
+private fun ratingDisplayName(rating: Rating): String = when (rating) {
+    Rating.Again -> stringResource(R.string.review_rating_again)
+    Rating.Hard -> stringResource(R.string.review_rating_hard)
+    Rating.Good -> stringResource(R.string.review_rating_good)
+    Rating.Easy -> stringResource(R.string.review_rating_easy)
+}
 
 @Composable
 fun ReviewScreen(
@@ -51,17 +62,24 @@ fun ReviewScreen(
             .withZone(ZoneId.systemDefault())
     }
 
+    val ratingOptions = listOf(
+        Rating.Again to stringResource(R.string.review_rating_again),
+        Rating.Hard to stringResource(R.string.review_rating_hard),
+        Rating.Good to stringResource(R.string.review_rating_good),
+        Rating.Easy to stringResource(R.string.review_rating_easy)
+    )
+
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Review",
+                title = stringResource(R.string.review_title),
                 onBackClick = onBackClick
             )
         }
     ) { padding ->
         if (item == null) {
             Text(
-                "Item not found",
+                stringResource(R.string.review_item_not_found),
                 modifier = Modifier.padding(padding).padding(16.dp)
             )
             return@Scaffold
@@ -84,7 +102,7 @@ fun ReviewScreen(
             )
             if (category != null) {
                 Text(
-                    text = "Category: ${category.name}",
+                    text = stringResource(R.string.review_category_format, category.name),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
@@ -98,10 +116,10 @@ fun ReviewScreen(
             HorizontalDivider()
 
             // Review history
-            Text(text = "Review History", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.review_history_title), style = MaterialTheme.typography.titleMedium)
             if (reviews.isEmpty()) {
                 Text(
-                    text = "No reviews yet",
+                    text = stringResource(R.string.review_no_reviews),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -119,7 +137,7 @@ fun ReviewScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = review.rating.name,
+                                    text = ratingDisplayName(review.rating),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(
@@ -142,11 +160,11 @@ fun ReviewScreen(
             HorizontalDivider()
 
             // New review
-            Text(text = "New Review", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.review_new_review_title), style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
                 value = newNotes,
                 onValueChange = { newNotes = it },
-                label = { Text("Notes (optional)") },
+                label = { Text(stringResource(R.string.review_notes_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
@@ -155,11 +173,11 @@ fun ReviewScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("Again", "Hard", "Good", "Easy").forEach { label ->
-                    if (label == "Good" || label == "Easy") {
+                ratingOptions.forEach { (rating, label) ->
+                    if (rating == Rating.Good || rating == Rating.Easy) {
                         Button(
                             onClick = {
-                                Toast.makeText(context, "Reviewed as $label", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.toast_reviewed_as, label), Toast.LENGTH_SHORT).show()
                                 onBackClick()
                             },
                             modifier = Modifier.weight(1f)
@@ -169,7 +187,7 @@ fun ReviewScreen(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                Toast.makeText(context, "Reviewed as $label", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.toast_reviewed_as, label), Toast.LENGTH_SHORT).show()
                                 onBackClick()
                             },
                             modifier = Modifier.weight(1f)

@@ -14,8 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
@@ -31,7 +34,7 @@ fun ReviewSessionScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Review Session",
+                title = stringResource(R.string.review_session_title),
                 onBackClick = onBackClick
             )
         }
@@ -44,7 +47,7 @@ fun ReviewSessionScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "All caught up! No items due for review.",
+                    text = stringResource(R.string.review_session_empty),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -59,7 +62,7 @@ fun ReviewSessionScreen(
             ) {
                 item {
                     Text(
-                        text = "${dueItems.size} items to review",
+                        text = pluralStringResource(R.plurals.review_session_count, dueItems.size, dueItems.size),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )

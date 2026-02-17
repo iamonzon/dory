@@ -24,13 +24,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
+import com.iamonzon.dory.algorithm.Rating
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+@Composable
+private fun ratingDisplayName(rating: Rating): String = when (rating) {
+    Rating.Again -> stringResource(R.string.review_rating_again)
+    Rating.Hard -> stringResource(R.string.review_rating_hard)
+    Rating.Good -> stringResource(R.string.review_rating_good)
+    Rating.Easy -> stringResource(R.string.review_rating_easy)
+}
 
 @Composable
 fun ItemEditScreen(
@@ -53,14 +64,14 @@ fun ItemEditScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Edit Item",
+                title = stringResource(R.string.edit_title),
                 onBackClick = onBackClick
             )
         }
     ) { padding ->
         if (item == null) {
             Text(
-                "Item not found",
+                stringResource(R.string.edit_item_not_found),
                 modifier = Modifier.padding(padding).padding(16.dp)
             )
             return@Scaffold
@@ -77,7 +88,7 @@ fun ItemEditScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.edit_label_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -85,7 +96,7 @@ fun ItemEditScreen(
             OutlinedTextField(
                 value = source,
                 onValueChange = { source = it },
-                label = { Text("Source") },
+                label = { Text(stringResource(R.string.edit_label_source)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -93,17 +104,17 @@ fun ItemEditScreen(
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("Notes") },
+                label = { Text(stringResource(R.string.edit_label_notes)) },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3
             )
 
             HorizontalDivider()
 
-            Text(text = "Recent Reviews", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.edit_recent_reviews), style = MaterialTheme.typography.titleMedium)
             if (recentReviews.isEmpty()) {
                 Text(
-                    text = "No reviews yet",
+                    text = stringResource(R.string.edit_no_reviews),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -121,7 +132,7 @@ fun ItemEditScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = review.rating.name,
+                                    text = ratingDisplayName(review.rating),
                                     style = MaterialTheme.typography.labelMedium
                                 )
                                 Text(
@@ -143,12 +154,12 @@ fun ItemEditScreen(
 
             Button(
                 onClick = {
-                    Toast.makeText(context, "Changes saved!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_changes_saved), Toast.LENGTH_SHORT).show()
                     onBackClick()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Save Changes")
+                Text(stringResource(R.string.edit_save_changes))
             }
         }
     }

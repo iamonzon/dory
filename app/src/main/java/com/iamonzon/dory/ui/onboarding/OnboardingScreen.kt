@@ -22,28 +22,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.ui.theme.DoryTheme
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(
-    val title: String,
-    val description: String
+    val titleRes: Int,
+    val descriptionRes: Int
 )
 
 private val pages = listOf(
     OnboardingPage(
-        title = "Welcome to Dory",
-        description = "Remember everything you learn with scientifically-backed spaced repetition."
+        titleRes = R.string.onboarding_title_1,
+        descriptionRes = R.string.onboarding_description_1
     ),
     OnboardingPage(
-        title = "Add What You Learn",
-        description = "Save articles, concepts, and ideas. Organize them by category."
+        titleRes = R.string.onboarding_title_2,
+        descriptionRes = R.string.onboarding_description_2
     ),
     OnboardingPage(
-        title = "Review & Remember",
-        description = "Dory schedules reviews at the optimal time so you never forget."
+        titleRes = R.string.onboarding_title_3,
+        descriptionRes = R.string.onboarding_description_3
     )
 )
 
@@ -66,7 +68,7 @@ fun OnboardingScreen(
         ) {
             if (pagerState.currentPage < pages.size - 1) {
                 TextButton(onClick = onComplete) {
-                    Text("Skip")
+                    Text(stringResource(R.string.onboarding_skip))
                 }
             }
         }
@@ -85,12 +87,12 @@ fun OnboardingScreen(
                     modifier = Modifier.padding(32.dp)
                 ) {
                     Text(
-                        text = pages[page].title,
+                        text = stringResource(pages[page].titleRes),
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = pages[page].description,
+                        text = stringResource(pages[page].descriptionRes),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -127,7 +129,7 @@ fun OnboardingScreen(
                 onClick = onComplete,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Get Started")
+                Text(stringResource(R.string.onboarding_get_started))
             }
         } else {
             Button(
@@ -138,7 +140,7 @@ fun OnboardingScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Next")
+                Text(stringResource(R.string.onboarding_next))
             }
         }
 

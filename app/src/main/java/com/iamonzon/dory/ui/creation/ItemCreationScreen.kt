@@ -32,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.iamonzon.dory.R
 import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
@@ -59,7 +61,7 @@ fun ItemCreationScreen(
     Scaffold(
         topBar = {
             DoryTopAppBar(
-                title = "Add New Item",
+                title = stringResource(R.string.creation_title),
                 onBackClick = onBackClick
             )
         }
@@ -78,7 +80,7 @@ fun ItemCreationScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Step ${stepIndex + 1} of ${CreationStep.entries.size}",
+                text = stringResource(R.string.creation_step_format, stepIndex + 1, CreationStep.entries.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -98,34 +100,34 @@ fun ItemCreationScreen(
                 ) {
                     when (step) {
                         CreationStep.TITLE -> {
-                            Text("What do you want to remember?", style = MaterialTheme.typography.titleLarge)
+                            Text(stringResource(R.string.creation_title_prompt), style = MaterialTheme.typography.titleLarge)
                             OutlinedTextField(
                                 value = title,
                                 onValueChange = { title = it },
-                                label = { Text("Title") },
+                                label = { Text(stringResource(R.string.creation_title_label)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true
                             )
                         }
 
                         CreationStep.SOURCE -> {
-                            Text("Where did you learn this?", style = MaterialTheme.typography.titleLarge)
+                            Text(stringResource(R.string.creation_source_prompt), style = MaterialTheme.typography.titleLarge)
                             OutlinedTextField(
                                 value = source,
                                 onValueChange = { source = it },
-                                label = { Text("Source (URL, book, etc.)") },
+                                label = { Text(stringResource(R.string.creation_source_label)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true
                             )
                             if (!showMoreOptions) {
                                 TextButton(onClick = { showMoreOptions = true }) {
-                                    Text("More options")
+                                    Text(stringResource(R.string.creation_more_options))
                                 }
                             }
                         }
 
                         CreationStep.CATEGORY -> {
-                            Text("Pick a category", style = MaterialTheme.typography.titleLarge)
+                            Text(stringResource(R.string.creation_category_prompt), style = MaterialTheme.typography.titleLarge)
                             var expanded by remember { mutableStateOf(false) }
                             ExposedDropdownMenuBox(
                                 expanded = expanded,
@@ -135,7 +137,7 @@ fun ItemCreationScreen(
                                     value = selectedCategoryName ?: "",
                                     onValueChange = {},
                                     readOnly = true,
-                                    label = { Text("Category") },
+                                    label = { Text(stringResource(R.string.creation_category_label)) },
                                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -159,11 +161,11 @@ fun ItemCreationScreen(
                         }
 
                         CreationStep.NOTES -> {
-                            Text("Any notes to remember?", style = MaterialTheme.typography.titleLarge)
+                            Text(stringResource(R.string.creation_notes_prompt), style = MaterialTheme.typography.titleLarge)
                             OutlinedTextField(
                                 value = notes,
                                 onValueChange = { notes = it },
-                                label = { Text("Notes (optional)") },
+                                label = { Text(stringResource(R.string.creation_notes_label)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 minLines = 4
                             )
@@ -183,7 +185,7 @@ fun ItemCreationScreen(
                             if (idx > 0) currentStep = CreationStep.entries[idx - 1]
                         }
                     ) {
-                        Text("Back")
+                        Text(stringResource(R.string.creation_back))
                     }
                 } else {
                     Spacer(modifier = Modifier.weight(1f))
@@ -192,11 +194,11 @@ fun ItemCreationScreen(
                 if (currentStep == CreationStep.NOTES) {
                     Button(
                         onClick = {
-                            Toast.makeText(context, "Item saved!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.toast_item_saved), Toast.LENGTH_SHORT).show()
                             onBackClick()
                         }
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.creation_save))
                     }
                 } else {
                     Button(
@@ -212,7 +214,7 @@ fun ItemCreationScreen(
                             else -> true
                         }
                     ) {
-                        Text("Next")
+                        Text(stringResource(R.string.creation_next))
                     }
                 }
             }
