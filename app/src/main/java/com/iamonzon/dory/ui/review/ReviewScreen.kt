@@ -1,6 +1,5 @@
 package com.iamonzon.dory.ui.review
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,20 +20,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
 import com.iamonzon.dory.algorithm.Rating
-import com.iamonzon.dory.data.mock.MockData
 import com.iamonzon.dory.ui.components.DoryTopAppBar
-import com.iamonzon.dory.ui.theme.DoryTheme
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -48,14 +45,19 @@ private fun ratingDisplayName(rating: Rating): String = when (rating) {
 
 @Composable
 fun ReviewScreen(
-    itemId: Long,
+    viewModel: ReviewViewModel,
     onBackClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val item = remember { MockData.itemById(itemId) }
-    val reviews = remember { MockData.reviewsForItem(itemId) }
-    val category = remember { MockData.categories.find { it.id == item?.categoryId } }
+    val item by viewModel.item.collectAsStateWithLifecycle()
+    val reviews by viewModel.reviews.collectAsStateWithLifecycle()
+    val category by viewModel.category.collectAsStateWithLifecycle()
     var newNotes by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.reviewSubmitted.collect {
+            onBackClick()
+        }
+    }
 
     val dateFormatter = remember {
         DateTimeFormatter.ofPattern("MMM d, yyyy")
@@ -85,6 +87,8 @@ fun ReviewScreen(
             return@Scaffold
         }
 
+        val loadedItem = item!!
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -94,21 +98,21 @@ fun ReviewScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Item details
-            Text(text = item.title, style = MaterialTheme.typography.titleLarge)
+            Text(text = loadedItem.title, style = MaterialTheme.typography.titleLarge)
             Text(
-                text = item.source,
+                text = loadedItem.source,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (category != null) {
                 Text(
-                    text = stringResource(R.string.review_category_format, category.name),
+                    text = stringResource(R.string.review_category_format, category!!.name),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
-            if (!item.notes.isNullOrBlank()) {
+            if (!loadedItem.notes.isNullOrBlank()) {
                 Text(
-                    text = item.notes,
+                    text = loadedItem.notes,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -177,8 +181,7 @@ fun ReviewScreen(
                     if (rating == Rating.Good || rating == Rating.Easy) {
                         Button(
                             onClick = {
-                                Toast.makeText(context, context.getString(R.string.toast_reviewed_as, label), Toast.LENGTH_SHORT).show()
-                                onBackClick()
+                                viewModel.submitReview(rating, newNotes.ifBlank { null })
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -187,8 +190,7 @@ fun ReviewScreen(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                Toast.makeText(context, context.getString(R.string.toast_reviewed_as, label), Toast.LENGTH_SHORT).show()
-                                onBackClick()
+                                viewModel.submitReview(rating, newNotes.ifBlank { null })
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -198,13 +200,5 @@ fun ReviewScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ReviewScreenPreview() {
-    DoryTheme {
-        ReviewScreen(itemId = 1L, onBackClick = {})
     }
 }

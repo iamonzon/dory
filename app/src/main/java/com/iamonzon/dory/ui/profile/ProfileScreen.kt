@@ -23,25 +23,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
-import com.iamonzon.dory.data.mock.MockData
-import com.iamonzon.dory.ui.theme.DoryTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    viewModel: ProfileViewModel,
     onCategoryManagement: () -> Unit,
     onArchivedItems: () -> Unit,
     onAdvancedSettings: () -> Unit
 ) {
-    val stats = remember { MockData.profileStats }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val stats = uiState.stats
 
     Scaffold(
         topBar = {
@@ -88,10 +88,10 @@ fun ProfileScreen(
 
             HorizontalDivider()
 
-            // Notification time (mock)
+            // Notification time
             Text(text = stringResource(R.string.profile_daily_reminder), style = MaterialTheme.typography.titleMedium)
             Text(
-                text = stringResource(R.string.profile_notification_time),
+                text = stringResource(R.string.profile_notification_time_format, uiState.notificationHour, uiState.notificationMinute),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -162,17 +162,5 @@ private fun NavigationCard(
             icon()
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ProfileScreenPreview() {
-    DoryTheme {
-        ProfileScreen(
-            onCategoryManagement = {},
-            onArchivedItems = {},
-            onAdvancedSettings = {}
-        )
     }
 }

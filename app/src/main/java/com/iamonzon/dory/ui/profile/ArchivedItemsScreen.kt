@@ -1,6 +1,5 @@
 package com.iamonzon.dory.ui.profile
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,24 +15,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
-import com.iamonzon.dory.data.mock.MockData
-import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 
 @Composable
 fun ArchivedItemsScreen(
+    viewModel: ArchivedItemsViewModel,
     onBackClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val archivedItems = remember { MockData.archivedItems }
+    val archivedItems by viewModel.archivedItems.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -79,9 +75,7 @@ fun ArchivedItemsScreen(
                                 modifier = Modifier.weight(1f)
                             )
                             TextButton(
-                                onClick = {
-                                    Toast.makeText(context, context.getString(R.string.toast_item_restored), Toast.LENGTH_SHORT).show()
-                                }
+                                onClick = { viewModel.restoreItem(item.id) }
                             ) {
                                 Text(stringResource(R.string.archived_restore))
                             }
@@ -90,13 +84,5 @@ fun ArchivedItemsScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ArchivedItemsScreenPreview() {
-    DoryTheme {
-        ArchivedItemsScreen(onBackClick = {})
     }
 }

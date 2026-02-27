@@ -18,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.iamonzon.dory.navigation.Dashboard
 import com.iamonzon.dory.navigation.DoryNavGraph
@@ -27,9 +29,6 @@ import com.iamonzon.dory.navigation.Profile
 import com.iamonzon.dory.navigation.ReviewSession
 import com.iamonzon.dory.ui.actionhub.ActionHubDialog
 import com.iamonzon.dory.ui.theme.DoryTheme
-
-// Toggle to true to test onboarding flow
-private const val IS_FIRST_LAUNCH = false
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +57,12 @@ fun DoryApp() {
     var currentTab by rememberSaveable { mutableStateOf(TopLevelTab.DASHBOARD) }
     var showActionHub by remember { mutableStateOf(false) }
 
-    val startDestination: Any = if (IS_FIRST_LAUNCH) Onboarding else Dashboard
+    val app = LocalContext.current.applicationContext as DoryApplication
+    val hasCompletedOnboarding by app.container.settingsRepository
+        .observeHasCompletedOnboarding()
+        .collectAsStateWithLifecycle(initialValue = true)
+
+    val startDestination: Any = if (hasCompletedOnboarding) Dashboard else Onboarding
 
     if (showActionHub) {
         ActionHubDialog(

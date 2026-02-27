@@ -15,26 +15,19 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iamonzon.dory.R
-import com.iamonzon.dory.algorithm.FsrsParameters
-import com.iamonzon.dory.ui.theme.DoryTheme
 import com.iamonzon.dory.ui.components.DoryTopAppBar
 
 @Composable
 fun AdvancedSettingsScreen(
+    viewModel: AdvancedSettingsViewModel,
     onBackClick: () -> Unit
 ) {
-    var desiredRetention by remember {
-        mutableFloatStateOf(FsrsParameters.DEFAULT_DESIRED_RETENTION.toFloat())
-    }
-    val defaultWeights = remember { FsrsParameters.DEFAULT_WEIGHTS }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -60,13 +53,13 @@ fun AdvancedSettingsScreen(
             )
 
             Text(
-                text = stringResource(R.string.advanced_retention_format, desiredRetention * 100),
+                text = stringResource(R.string.advanced_retention_format, uiState.desiredRetention.toFloat() * 100),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Slider(
-                value = desiredRetention,
-                onValueChange = { desiredRetention = it },
+                value = uiState.desiredRetention.toFloat(),
+                onValueChange = { viewModel.setDesiredRetention(it.toDouble()) },
                 valueRange = 0.70f..0.97f,
                 steps = 26
             )
@@ -88,7 +81,7 @@ fun AdvancedSettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            defaultWeights.forEachIndexed { index, weight ->
+            uiState.fsrsWeights.forEachIndexed { index, weight ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -105,13 +98,5 @@ fun AdvancedSettingsScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AdvancedSettingsScreenPreview() {
-    DoryTheme {
-        AdvancedSettingsScreen(onBackClick = {})
     }
 }
