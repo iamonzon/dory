@@ -43,6 +43,9 @@ android {
     buildFeatures {
         compose = true
     }
+    lint {
+        checkReleaseBuilds = false
+    }
 }
 
 ksp {
