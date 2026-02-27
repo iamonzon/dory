@@ -1,6 +1,8 @@
 name: Build APK
 
 on:
+  push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -19,6 +21,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            wrapper/dists
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug
@@ -30,6 +37,7 @@ jobs:
           BRANCH: ${{ github.head_ref || github.ref_name }}
 
       - name: Upload APK
+        if: github.event_name != 'push'
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk-${{ steps.branch.outputs.name }}
