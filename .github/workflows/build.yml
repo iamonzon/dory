@@ -25,7 +25,7 @@ jobs:
 
       - name: Sanitize branch name
         id: branch
-        run: echo "name=$(echo '${BRANCH}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+        run: echo "name=$(echo "${BRANCH}" | tr '/' '-')" >> "$GITHUB_OUTPUT"
         env:
           BRANCH: ${{ github.head_ref || github.ref_name }}
 
